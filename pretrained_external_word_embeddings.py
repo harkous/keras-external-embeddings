@@ -16,12 +16,11 @@ from __future__ import print_function
 import os
 import sys
 import numpy as np
-from keras.preprocessing.text import Tokenizer, text_to_word_sequence
+from keras.preprocessing.text import text_to_word_sequence
 from keras.utils import to_categorical
 from keras.layers import Dense, Input, Flatten, Reshape
-from keras.layers import Conv1D, MaxPooling1D, Embedding, Masking, Conv2D, MaxPooling2D
+from keras.layers import Conv1D, MaxPooling1D
 from keras.models import Model
-from pdb import set_trace as bp
 
 np.random.seed(41)
 
@@ -70,19 +69,19 @@ embeddings_index = {}
 
 f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
 
-for ind, line in enumerate(f):
+for line in f:
     values = line.split()
     word = values[0]
     coefs = np.asarray(values[1:], dtype='float32')
     embeddings_index[word] = coefs
-    # if ind>1000:
-    # break
+
+f.close()
 
 # add the padding token vector
 embeddings_index['<pad>'] = get_random_vec(EMBEDDING_DIM)
 embeddings_index['<unk>'] = get_random_vec(EMBEDDING_DIM)
 
-f.close()
+
 
 print('Found %s word vectors.' % len(embeddings_index))
 
@@ -120,8 +119,7 @@ for name in sorted(os.listdir(TEXT_DATA_DIR)):
                 texts_vectors.append(sentence_matrix)
                 f.close()
                 labels.append(label_id)
-                if len(texts_vectors) > 2000:
-                    break
+
 
 print('Found %s texts.' % len(texts_vectors))
 
@@ -143,8 +141,6 @@ y_train = labels[:-num_validation_samples]
 x_val = data[-num_validation_samples:]
 y_val = labels[-num_validation_samples:]
 
-print('Preparing embedding matrix.')
-
 print('Training model.')
 
 # Notice how the embedding layer is removed and the each input to the model is an embedding matrix representing the sequence
@@ -164,7 +160,7 @@ model = Model(sequence_input, preds)
 model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=['acc'])
-print(model.summary())
+
 model.fit(x_train, y_train,
           batch_size=128,
           epochs=10,

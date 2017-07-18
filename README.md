@@ -16,6 +16,8 @@ Then simply run:
 python pretrained_external_word_embeddings.py
 ```
 
+You can check the difference between the two files with your favorite diff checker to understand the differences between them.
+
 ## Prerequisites:
 * [Keras](https://github.com/fchollet/keras)
 
